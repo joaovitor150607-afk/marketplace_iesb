@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-br"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Marketplace IESB{% endblock %}</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:1100px;margin:2rem auto;padding:0 1rem;background:#f4f6fa;color:#202938}
+nav,main{background:white;padding:1.2rem;border-radius:10px;margin-bottom:1rem}nav{display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
+a{color:#2457c5;text-decoration:none}.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.card{border:1px solid #ddd;border-radius:8px;padding:1rem}.preco{font-size:1.2rem;font-weight:bold;color:#147a48}
+button{padding:.7rem 1rem;background:#2457c5;color:white;border:0;border-radius:6px;cursor:pointer}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:.7rem;text-align:left}
+.msg{padding:.8rem;margin:.5rem 0;border-radius:6px}.success{background:#d8f3e4}.error{background:#ffe0e0}.warning{background:#fff1c7}
+</style></head><body>
+<nav><strong>Marketplace IESB</strong><a href="{% url 'catalogo' %}">Catálogo</a>
+<a href="{% url 'carrinho' %}">Carrinho (<span id="contador">0</span>)</a><a href="/admin/">Painel do vendedor</a>
+{% if user.is_authenticated %}<span>Olá, {{ user.username }}</span>
+{% else %}<a href="{% url 'rest_framework:login' %}?next=/">Entrar</a>{% endif %}</nav>
+{% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}
+<main>{% block conteudo %}{% endblock %}</main></body></html>

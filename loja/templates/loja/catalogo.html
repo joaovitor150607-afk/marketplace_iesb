@@ -1,0 +1,24 @@
+{% extends 'loja/base.html' %}
+{% block titulo %}Catálogo | Marketplace IESB{% endblock %}
+{% block conteudo %}<h1>Catálogo de produtos</h1><form id="form-csrf">{% csrf_token %}</form>
+<p id="status">Carregando produtos...</p><div id="grade" class="grade"></div>
+<script>
+const contador=document.getElementById('contador'), statusEl=document.getElementById('status'), grade=document.getElementById('grade');
+const csrf=document.querySelector('#form-csrf [name=csrfmiddlewaretoken]').value;
+function ler(){try{return Number(localStorage.getItem('itensCarrinho')||0)}catch(e){return 0}}
+function gravar(n){try{localStorage.setItem('itensCarrinho',String(n))}catch(e){}contador.textContent=n}
+contador.textContent=ler();
+function adicionar(id){fetch('/carrinho/adicionar/'+id+'/',{method:'POST',headers:{'X-CSRFToken':csrf,'X-Requested-With':'fetch'}})
+.then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(d=>gravar(d.itens))
+.catch(e=>{alert('Não foi possível adicionar ao carrinho.');console.error(e)})}
+fetch('/api/produtos/').then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(produtos=>{
+statusEl.hidden=true;if(!produtos.length){statusEl.hidden=false;statusEl.textContent='Nenhum produto cadastrado. Acesse /admin/ para cadastrar.';return}
+produtos.forEach(p=>{const card=document.createElement('article');card.className='card';
+const h=document.createElement('h3');h.textContent=p.nome;const cat=document.createElement('small');cat.textContent=p.categoria_nome;
+const desc=document.createElement('p');desc.textContent=p.descricao||'Sem descrição.';
+const preco=document.createElement('p');preco.className='preco';preco.textContent=Number(p.preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const estoque=document.createElement('p');estoque.textContent='Estoque: '+p.estoque;
+const btn=document.createElement('button');btn.textContent=p.estoque>0?'Adicionar ao carrinho':'Sem estoque';btn.disabled=p.estoque<=0;btn.addEventListener('click',()=>adicionar(p.id));
+[h,cat,desc,preco,estoque,btn].forEach(el=>card.appendChild(el));grade.appendChild(card)})})
+.catch(e=>{statusEl.hidden=false;statusEl.textContent='Não foi possível carregar o catálogo.';console.error(e)});
+</script>{% endblock %}
